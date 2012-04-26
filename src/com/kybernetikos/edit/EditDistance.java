@@ -1,6 +1,7 @@
 package com.kybernetikos.edit;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class EditDistance {
@@ -49,11 +50,11 @@ public class EditDistance {
 					List<Action<T>> insertion = matrix[i][j-1];
 					List<Action<T>> both = matrix[i-1][j-1];
 					
-					List<Action<T>> best = deletion;
-					if (best.size() > insertion.size()) {
+					List<Action<T>> best = null;
+					if (deletion.size() > insertion.size() && both.size() + 2 > insertion.size()) {
 						best = new ArrayList<Action<T>>(insertion);
 						best.add(new Insert<T>(after.get(j - 1), j - 1));
-					} else if (best.size() > both.size() + 2) {
+					} else if (deletion.size() > both.size() + 2 && insertion.size() > both.size() + 2) {
 						best = new ArrayList<Action<T>>(both);
 						best.add(new Delete<T>(before.get(i - 1), j));
 						best.add(new Insert<T>(after.get(j - 1), j - 1));
@@ -68,4 +69,18 @@ public class EditDistance {
 		return matrix;
 	}
 
+	public static void main(String[] args) {
+		List<String> before = Arrays.asList("abcdefghijklmnopqrstuvwxyz".split(""));
+		List<String> after = Arrays.asList("abcdefghijklmnopqstruvwyxz".split(""));
+		
+		List<Action<String>> changes = calculate(before, after);
+		System.err.println(changes.size()+" operations");
+		ArrayList<String> working = new ArrayList<String>(before);
+		System.err.println(working);
+		for (Action<String> change : changes) {
+			System.err.println("\t"+change);
+			change.apply(working);
+			System.err.println(working);
+		}
+	}
 }
